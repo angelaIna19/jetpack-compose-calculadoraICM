@@ -62,58 +62,88 @@ fun PreviewPantallaCaptura() {
 
 @Composable
 fun PantallaCaptura() {
-    // 3. ESTADOS: Usamos 'remember' y 'mutableStateOf' para que Compose
-    // "recuerde" lo que el usuario escribe y redibuje la pantalla (Recomposición)
+    // 3. ESTADOS: Usamos 'remember' y 'mutableStateOf'
     var nombre by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
     var altura by remember { mutableStateOf("") }
 
-    // 4. LAYOUT (Estructura): Column organiza los elementos uno debajo de otro
+    // Estados para validaciones
+    var errorNombre by remember { mutableStateOf(false) }
+    var errorPeso by remember { mutableStateOf(false) }
+    var errorAltura by remember { mutableStateOf(false) }
+
+    // 4. LAYOUT (Estructura)
     Column(
         modifier = Modifier
-            .fillMaxSize() // Ocupa todo el alto y ancho disponible
-            .padding(16.dp), // Agrega margen interno (Requisito 1)
-        horizontalAlignment = Alignment.CenterHorizontally, // Centra horizontalmente
-        verticalArrangement = Arrangement.Center // Centra verticalmente en la pantalla
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        // Título de la pantalla
         Text(text = "Datos del Usuario", style = MaterialTheme.typography.headlineMedium)
 
-        // 5. SPACER: Crea un espacio vacío entre elementos (Requisito 1)
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo para el Nombre
+        // Campo para el Nombre con validación
         OutlinedTextField(
             value = nombre,
-            onValueChange = { nombre = it }, // Actualiza el estado al escribir
+            onValueChange = {
+                nombre = it
+                errorNombre = it.isBlank()
+            },
             label = { Text("Nombre") },
-            modifier = Modifier.fillMaxWidth() // Se expande a todo el ancho
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Campo para el Peso
-        OutlinedTextField(
-            value = peso,
-            onValueChange = { peso = it },
-            label = { Text("Peso (kg)") },
+            isError = errorNombre,
+            supportingText = { if (errorNombre) Text("El nombre no puede estar vacío") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Campo para la Altura
+        // Campo para el Peso con validación numérica
+        OutlinedTextField(
+            value = peso,
+            onValueChange = {
+                peso = it
+                // Valida que sea un número válido
+                errorPeso = it.toDoubleOrNull() == null || it.toDouble() <= 0
+            },
+            label = { Text("Peso (kg)") },
+            isError = errorPeso,
+            supportingText = { if (errorPeso) Text("Ingresa un peso válido (ej: 70.5)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Campo para la Altura con validación numérica
         OutlinedTextField(
             value = altura,
-            onValueChange = { altura = it },
+            onValueChange = {
+                altura = it
+                // Valida que sea un número válido
+                errorAltura = it.toDoubleOrNull() == null || it.toDouble() <= 0
+            },
             label = { Text("Altura (m)") },
+            isError = errorAltura,
+            supportingText = { if (errorAltura) Text("Ingresa una altura válida (ej: 1.75)") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Botón con lógica de validación
         Button(
-            onClick = { },
+            onClick = {
+                // Verificación final antes de avanzar
+                errorNombre = nombre.isBlank()
+                errorPeso = peso.toDoubleOrNull() == null
+                errorAltura = altura.toDoubleOrNull() == null
+
+                if (!errorNombre && !errorPeso && !errorAltura) {
+                    // Aquí irá la navegación en el próximo commit
+                    println("Datos válidos: $nombre, $peso, $altura")
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Calcular")
