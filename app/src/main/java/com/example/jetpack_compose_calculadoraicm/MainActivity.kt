@@ -31,69 +31,47 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // Aplicamos el tema de la aplicación
             JetpackcomposecalculadoraICMTheme {
-
-                // 1. NAVEGACIÓN: rememberNavController es el "timonel" que controla a dónde vamos
                 val navController = rememberNavController()
 
-                // 2. NAVHOST: Es el contenedor donde se intercambiarán las pantallas
-                // startDestination define cuál es la pantalla que se ve al abrir la app
                 NavHost(navController = navController, startDestination = "captura") {
-
-                    // Definimos la ruta "captura" y qué Composable mostrará
                     composable("captura") {
                         PantallaCaptura(navController)
                     }
-
-                    // Nota: La ruta del resultado se agregará en el commit de navegación (Commit 3)
+                    composable("resultado/{nombre}/{imc}") { backStackEntry ->
+                        val userNombre = backStackEntry.arguments?.getString("nombre") ?: ""
+                        val userImc = backStackEntry.arguments?.getString("imc") ?: "0.0"
+                        PantallaResultado(userNombre, userImc, navController)
+                    }
                 }
             }
         }
     }
 }
 
-
-@Preview(showBackground = true, name = "Vista Previa de Captura")
-@Composable
-fun PreviewPantallaCaptura() {
-    JetpackcomposecalculadoraICMTheme {
-        PantallaCaptura()
-    }
-}
-
 @Composable
 fun PantallaCaptura(navController: androidx.navigation.NavController? = null) {
-    // 3. ESTADOS: Usamos 'remember' y 'mutableStateOf'
     var nombre by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
     var altura by remember { mutableStateOf("") }
 
-    // Estados para validaciones
     var errorNombre by remember { mutableStateOf(false) }
     var errorPeso by remember { mutableStateOf(false) }
     var errorAltura by remember { mutableStateOf(false) }
 
-    // 4. LAYOUT (Estructura)
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Datos del Usuario", style = MaterialTheme.typography.headlineMedium)
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo para el Nombre con validación de solo letras y longitud mínima
         OutlinedTextField(
             value = nombre,
             onValueChange = {
-                // Filtramos para que solo acepte letras y espacios
                 if (it.all { char -> char.isLetter() || char.isWhitespace() }) {
                     nombre = it
-                    // Error si está vacío o si es demasiado corto (menos de 3 letras)
                     errorNombre = it.isBlank() || it.trim().length < 3
                 }
             },
@@ -114,13 +92,11 @@ fun PantallaCaptura(navController: androidx.navigation.NavController? = null) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Campo para el Peso con validación de rango realista
         OutlinedTextField(
             value = peso,
             onValueChange = {
                 peso = it
                 val valor = it.toDoubleOrNull()
-                // Error si no es número o si está fuera del rango 10-500 kg
                 errorPeso = valor == null || valor < 10.0 || valor > 500.0
             },
             label = { Text("Peso (kg)") },
@@ -133,13 +109,11 @@ fun PantallaCaptura(navController: androidx.navigation.NavController? = null) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Campo para la Altura con validación de rango realista
         OutlinedTextField(
             value = altura,
             onValueChange = {
                 altura = it
                 val valor = it.toDoubleOrNull()
-                // Error si no es número o si está fuera del rango 0.5 - 2.5 m
                 errorAltura = valor == null || valor < 0.5 || valor > 2.5
             },
             label = { Text("Altura (m)") },
@@ -152,13 +126,11 @@ fun PantallaCaptura(navController: androidx.navigation.NavController? = null) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botón con validación de rangos
         Button(
             onClick = {
                 val p = peso.toDoubleOrNull()
                 val a = altura.toDoubleOrNull()
-
-                errorNombre = nombre.isBlank()
+                errorNombre = nombre.isBlank() || nombre.trim().length < 3
                 errorPeso = p == null || p < 10.0 || p > 500.0
                 errorAltura = a == null || a < 0.5 || a > 2.5
 
@@ -171,5 +143,31 @@ fun PantallaCaptura(navController: androidx.navigation.NavController? = null) {
         ) {
             Text("Calcular")
         }
+    }
+}
+
+@Composable
+fun PantallaResultado(nombre: String, imc: String, navController: androidx.navigation.NavController) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "¡Hola $nombre!", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Tu IMC es:", style = MaterialTheme.typography.bodyLarge)
+        Text(text = imc, style = MaterialTheme.typography.displayLarge, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(onClick = { navController.popBackStack() }) {
+            Text("Volver a calcular")
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Vista Previa de Captura")
+@Composable
+fun PreviewPantallaCaptura() {
+    JetpackcomposecalculadoraICMTheme {
+        PantallaCaptura()
     }
 }
