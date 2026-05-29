@@ -102,7 +102,7 @@ fun PantallaCaptura() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Campo para la Altura gg
+        // Campo para la Altura
         OutlinedTextField(
             value = altura,
             onValueChange = { altura = it },
