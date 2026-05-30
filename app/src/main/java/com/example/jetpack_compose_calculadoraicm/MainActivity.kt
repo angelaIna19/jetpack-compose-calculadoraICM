@@ -145,20 +145,55 @@ fun PantallaCaptura(navController: androidx.navigation.NavController? = null) {
         }
     }
 }
-
 @Composable
 fun PantallaResultado(nombre: String, imc: String, navController: androidx.navigation.NavController) {
+    // 1. Convertimos el texto a número de forma segura con el operador Elvis (?:)
+    val imcValor = imc.replace(",", ".").toDoubleOrNull() ?: 0.0
+
+    // 2. Lógica inteligente con 'when' siguiendo los requisitos de colores de la tarea
+    val (categoria, color) = when {
+        imcValor < 18.5 -> "Bajo peso" to androidx.compose.ui.graphics.Color.Red
+        imcValor < 25.0 -> "Peso normal" to androidx.compose.ui.graphics.Color.Green
+        imcValor < 30.0 -> "Sobrepeso" to androidx.compose.ui.graphics.Color(0xFFFFA500) // Naranja
+        else -> "Obesidad" to androidx.compose.ui.graphics.Color.Red
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "¡Hola $nombre!", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Tu IMC es:", style = MaterialTheme.typography.bodyLarge)
-        Text(text = imc, style = MaterialTheme.typography.displayLarge, color = MaterialTheme.colorScheme.primary)
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "¡Hola $nombre!", style = MaterialTheme.typography.headlineSmall)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Tu IMC es de:", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = imc,
+                    style = MaterialTheme.typography.displayLarge,
+                    color = color
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = categoria,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = color
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = { navController.popBackStack() }) {
+
+        Button(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier.fillMaxWidth(0.7f)
+        ) {
             Text("Volver a calcular")
         }
     }
