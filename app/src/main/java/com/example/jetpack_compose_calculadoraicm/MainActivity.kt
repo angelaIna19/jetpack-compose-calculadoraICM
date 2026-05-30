@@ -206,3 +206,39 @@ fun PreviewPantallaCaptura() {
         PantallaCaptura()
     }
 }
+
+@Preview(showBackground = true, name = "Estado: Bajo Peso (Rojo)")
+@Composable
+fun PreviewResultadoBajo() {
+    JetpackcomposecalculadoraICMTheme {
+        // Simulamos un IMC de 16.0 (Bajo peso)
+        PantallaResultado("Angela", "16.00", rememberNavController())
+    }
+}
+
+@Preview(showBackground = true, name = "Estado: Normal (Verde)")
+@Composable
+fun PreviewResultadoNormal() {
+    JetpackcomposecalculadoraICMTheme {
+        // Simulamos un IMC de 22.0 (Normal)
+        PantallaResultado("Angela", "22.00", rememberNavController())
+    }
+}
+
+@Preview(showBackground = true, name = "Estado: Sobrepeso (Naranja)")
+@Composable
+fun PreviewResultadoSobrepeso() {
+    JetpackcomposecalculadoraICMTheme {
+        // Simulamos un IMC de 27.5 (Sobrepeso)
+        PantallaResultado("Angela", "27.50", rememberNavController())
+    }
+}
+
+@Preview(showBackground = true, name = "Estado: Obesidad (Rojo)")
+@Composable
+fun PreviewResultadoObesidad() {
+    JetpackcomposecalculadoraICMTheme {
+        // Simulamos un IMC de 35.0 (Obesidad)
+        PantallaResultado("Angela", "35.00", rememberNavController())
+    }
+}
